@@ -117,17 +117,35 @@
     border-radius:14px;padding:16px;text-align:center;
   }
   .metric .label{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;}
-  .time{font-size:56px;font-weight:750;font-variant-numeric:tabular-nums;line-height:1.05;margin:4px 0;}
+
+  /* Kreis-Fortschrittsring */
+  .ringwrap{position:relative;width:176px;height:176px;margin:12px auto 6px;}
+  .ring{width:100%;height:100%;transform:rotate(-90deg);}
+  .ringtrack{fill:none;stroke:var(--line);stroke-width:8;}
+  .ringprog{fill:none;stroke:var(--accent);stroke-width:8;stroke-linecap:round;
+    transition:stroke-dashoffset .95s linear, stroke .3s;}
+  .ringprog.warn{stroke:var(--warn);}
+  .time{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    font-size:46px;font-weight:750;font-variant-numeric:tabular-nums;line-height:1;}
   .time.pulse{color:var(--warn);}
   .reps-num{font-size:56px;font-weight:750;line-height:1.05;margin:2px 0;color:var(--accent);}
   .sub{font-size:13px;color:var(--muted);margin-top:2px;}
 
-  .side-toggle{display:inline-flex;gap:6px;margin:8px 0 4px;background:var(--card2);border:1px solid var(--line);border-radius:20px;padding:3px;}
-  .side-toggle button{
-    border:none;background:transparent;color:var(--muted);font-size:13px;font-weight:600;
-    padding:5px 14px;border-radius:16px;cursor:pointer;
+  /* Vorbereitungs-Countdown-Overlay */
+  .overlay{position:fixed;inset:0;z-index:60;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;background:rgba(10,16,22,.94);}
+  .overlay.hidden{display:none;}
+  .ov-label{color:var(--accent2);font-size:19px;font-weight:650;margin-bottom:14px;
+    min-height:22px;text-align:center;padding:0 24px;letter-spacing:.3px;}
+  .ov-num{font-size:150px;font-weight:800;color:var(--accent);line-height:1;}
+  .ov-num.go{color:var(--good);font-size:96px;}
+  .ov-num.pop{animation:pop .9s ease-out;}
+  @keyframes pop{
+    0%{transform:scale(.3);opacity:0;}
+    22%{transform:scale(1.18);opacity:1;}
+    55%{transform:scale(1);opacity:1;}
+    100%{transform:scale(.8);opacity:.12;}
   }
-  .side-toggle button.on{background:var(--accent2);color:#04212f;}
 
   .controls{display:flex;gap:10px;justify-content:center;margin-top:12px;}
   .btn{
@@ -183,6 +201,11 @@
 
   <div id="screen"></div>
   <div id="footer"></div>
+</div>
+
+<div id="overlay" class="overlay hidden">
+  <div class="ov-label" id="ovLabel"></div>
+  <div class="ov-num" id="ovNum"></div>
 </div>
 
 <script>
@@ -361,11 +384,18 @@ function anim(i){
 let idx = 0;
 let side = "L";              // aktuelle Seite bei perSide-Übungen
 let remaining = 0;
-let ticking = null;
-let running = false;
+let ticking = null;          // Timer-Intervall
+let running = false;         // Timer läuft
+let paused = false;          // Timer pausiert (Fortsetzen ohne neues 3-2-1)
+let roundIdx = 0;            // aktuelle Runde/Seite (0-basiert)
+let prepTimer = null;        // Timeout des 3-2-1-Countdowns
+let autoTimer = null;        // Timeout für Seitenwechsel / Auto-Weiter
 
 const screen = document.getElementById("screen");
 const footer = document.getElementById("footer");
+const overlay = document.getElementById("overlay");
+const ovNum = document.getElementById("ovNum");
+const ovLabel = document.getElementById("ovLabel");
 
 /* ---------- Sprachausgabe (Deutsch, Web Speech API) ---------- */
 let voiceOn = true;
@@ -430,21 +460,41 @@ function stopTimer(){
   if(ticking){clearInterval(ticking);ticking=null;}
   running=false;
 }
+// bricht alles ab: Timer, 3-2-1, Auto-Weiter, Overlay
+function clearAllTimers(){
+  stopTimer();
+  if(prepTimer){clearTimeout(prepTimer);prepTimer=null;}
+  if(autoTimer){clearTimeout(autoTimer);autoTimer=null;}
+  paused=false;
+  hideOverlay();
+}
+
+// Anzahl der Runden einer Timer-Übung: pro Seite = 2, sonst Anzahl Durchgänge
+function totalRounds(e){
+  if(e.perSide) return 2;
+  if(e.sets) return e.sets;
+  return 1;
+}
 
 function render(){
-  stopTimer();
+  clearAllTimers();
   renderDots();
   const e = EX[idx];
-  side = "L";
+  side = "L"; roundIdx = 0;
 
   let metricHTML = "";
   if(e.type==="timer"){
     remaining = e.duration;
     metricHTML = `
-      ${e.perSide ? sideToggleHTML() : ""}
       <div class="metric">
-        <div class="label">Timer${e.perSide?` · Seite <span id="sideLbl">links</span>`:""}</div>
-        <div class="time" id="time">${fmt(remaining)}</div>
+        <div class="label">Timer <span id="roundLbl"></span></div>
+        <div class="ringwrap">
+          <svg class="ring" viewBox="0 0 120 120">
+            <circle class="ringtrack" cx="60" cy="60" r="52"/>
+            <circle class="ringprog" id="ringProg" cx="60" cy="60" r="52"/>
+          </svg>
+          <div class="time" id="time">${fmt(remaining)}</div>
+        </div>
         <div class="sub">${e.setsNote}</div>
         <div class="controls">
           <button class="btn btn-primary" id="startBtn">Start</button>
@@ -453,9 +503,8 @@ function render(){
       </div>`;
   } else {
     metricHTML = `
-      ${e.perSide ? sideToggleHTML() : ""}
       <div class="metric">
-        <div class="label">Wiederholungen${e.perSide?` · Seite <span id="sideLbl">links</span>`:""}</div>
+        <div class="label">Wiederholungen</div>
         <div class="reps-num">${e.reps}×</div>
         <div class="sub">${e.setsNote}</div>
         <div class="hint">Zähle die Wiederholungen bewusst und kontrolliert mit.</div>
@@ -487,42 +536,25 @@ function render(){
   };
 
   if(e.type==="timer"){
-    document.getElementById("startBtn").onclick=toggleTimer;
+    updateTime();
+    updateRoundLabel();
+    document.getElementById("startBtn").onclick=onStartClick;
     document.getElementById("resetBtn").onclick=()=>{
-      stopTimer();remaining=e.duration;updateTime();
-      document.getElementById("startBtn").textContent="Start";
+      clearAllTimers(); roundIdx=0; side="L";
+      remaining=e.duration; updateTime(); updateRoundLabel();
+      const sb=document.getElementById("startBtn"); if(sb) sb.textContent="Start";
     };
-  }
-  if(e.perSide){
-    wireSideToggle();
   }
 
   announce();   // Übungsname (+ beim ersten Mal die Anweisungen) vorlesen
 }
 
-function sideToggleHTML(){
-  return `<div class="side-toggle" id="sideToggle">
-      <button data-s="L" class="on">Links</button>
-      <button data-s="R">Rechts</button>
-    </div>`;
-}
-function wireSideToggle(){
-  const t=document.getElementById("sideToggle");
-  if(!t) return;
-  t.querySelectorAll("button").forEach(b=>{
-    b.onclick=()=>{
-      side=b.dataset.s;
-      t.querySelectorAll("button").forEach(x=>x.classList.remove("on"));
-      b.classList.add("on");
-      const lbl=document.getElementById("sideLbl");
-      if(lbl) lbl.textContent = side==="L"?"links":"rechts";
-      // Timer bei Seitenwechsel zurücksetzen
-      if(EX[idx].type==="timer"){
-        stopTimer();remaining=EX[idx].duration;updateTime();
-        const sb=document.getElementById("startBtn"); if(sb) sb.textContent="Start";
-      }
-    };
-  });
+function updateRoundLabel(){
+  const el=document.getElementById("roundLbl"); if(!el) return;
+  const e=EX[idx];
+  if(e.perSide) el.textContent = "· Seite "+(side==="L"?"links":"rechts");
+  else if(totalRounds(e)>1) el.textContent = "· Runde "+(roundIdx+1)+" / "+totalRounds(e);
+  else el.textContent = "";
 }
 
 function updateTime(){
@@ -530,28 +562,117 @@ function updateTime(){
   if(!t) return;
   t.textContent=fmt(remaining);
   t.classList.toggle("pulse", remaining<=10 && remaining>0);
+  const prog=document.getElementById("ringProg");
+  if(prog){
+    const C=2*Math.PI*52;
+    const dur=EX[idx].duration||1;
+    const frac=Math.max(0, Math.min(1, remaining/dur));
+    prog.style.strokeDasharray=C.toFixed(2);
+    prog.style.strokeDashoffset=(C*(1-frac)).toFixed(2);
+    prog.classList.toggle("warn", remaining<=10 && remaining>0);
+  }
 }
 
-function toggleTimer(){
+/* ---------- Vorbereitungs-Countdown-Overlay ---------- */
+function showOverlay(label){ ovLabel.textContent=label||""; overlay.classList.remove("hidden"); }
+function hideOverlay(){ overlay.classList.add("hidden"); ovNum.className="ov-num"; ovNum.textContent=""; }
+
+// 3-2-1-Los als Grafik + Stimme, danach onDone()
+function runPrep(label, onDone){
+  stopTimer();
+  if("speechSynthesis" in window) speechSynthesis.cancel();
+  showOverlay(label);
+  const seq=["3","2","1","Los!"];
+  let i=0;
+  (function step(){
+    if(i>=seq.length){ hideOverlay(); onDone(); return; }
+    const val=seq[i];
+    ovNum.className = "ov-num" + (val==="Los!" ? " go" : "");
+    ovNum.textContent = val;
+    void ovNum.offsetWidth;                 // Reflow -> Pop-Animation neu auslösen
+    ovNum.classList.add("pop");
+    beep(val==="Los!" ? 880 : 520);
+    if(voiceOn && ("speechSynthesis" in window)) utter(val);
+    i++;
+    prepTimer = setTimeout(step, 900);
+  })();
+}
+
+/* ---------- Geführter Timer-Ablauf ---------- */
+function onStartClick(){
+  if(prepTimer) return;              // während des 3-2-1 nichts tun
   const btn=document.getElementById("startBtn");
-  if(running){
-    stopTimer();btn.textContent="Weiter";
+  if(running){                       // läuft -> pausieren
+    stopTimer(); paused=true; if(btn) btn.textContent="Weiter"; return;
+  }
+  if(paused){                        // fortsetzen ohne neues 3-2-1
+    paused=false; startCountdown(); return;
+  }
+  roundIdx=0; side="L";              // kompletter Neustart der Übung
+  beginRound();
+}
+
+// startet die aktuelle Runde/Seite mit Vorbereitungs-Countdown
+function beginRound(){
+  const e=EX[idx];
+  paused=false;
+  if(e.perSide) side = roundIdx===0 ? "L" : "R";
+  remaining=e.duration; updateTime(); updateRoundLabel();
+  let label;
+  if(e.perSide) label = (side==="L" ? "Linke Seite" : "Rechte Seite") + " – mach dich bereit";
+  else if(totalRounds(e)>1) label = "Runde "+(roundIdx+1)+" von "+totalRounds(e);
+  else label = "Mach dich bereit";
+  runPrep(label, startCountdown);
+}
+
+function startCountdown(){
+  const btn=document.getElementById("startBtn");
+  running=true; paused=false; if(btn) btn.textContent="Pause";
+  updateTime();
+  ticking=setInterval(()=>{
+    remaining--; updateTime();
+    if(remaining<=0){ stopTimer(); onTimerEnd(); }
+  },1000);
+}
+
+function onTimerEnd(){
+  const e=EX[idx];
+  beep(880);
+  const btn=document.getElementById("startBtn");
+  if(roundIdx < totalRounds(e)-1){          // es folgt noch eine Runde / Seite
+    roundIdx++;
+    if(e.perSide) side = roundIdx===0 ? "L" : "R";
+    updateRoundLabel();
+    if(voiceOn) say(e.perSide ? "Seite wechseln!" : "Nächste Runde!");
+    autoTimer=setTimeout(beginRound, 1700);
     return;
   }
-  if(remaining<=0){remaining=EX[idx].duration;updateTime();}
-  running=true;btn.textContent="Pause";
-  beep(660);              // kurzer Start-Ton
-  say("Los, Start!");     // Sprachansage zum Start
-  ticking=setInterval(()=>{
-    remaining--;
-    updateTime();
-    if(remaining<=0){
-      stopTimer();
-      btn.textContent="Nochmal";
-      beep(880);                    // Signalton zum Ende
-      setTimeout(()=>say("Fertig, geschafft!"), 550);  // Ansage nach dem Ton
+  // Übung komplett fertig
+  if(btn) btn.textContent="Fertig ✓";
+  if(voiceOn) setTimeout(()=>say("Fertig, geschafft!"), 550);
+  autoAdvance();
+}
+
+// Auto-Weiter: nach kurzer Pause zur nächsten Übung
+function autoAdvance(){
+  if(idx>=EX.length-1){ autoTimer=setTimeout(finish, 2200); return; }
+  autoTimer=setTimeout(()=>{
+    idx++; render();                        // render() sagt Name (+ ggf. Anweisungen) an
+    if(EX[idx].type==="timer"){
+      whenSpeechIdle(()=>{ roundIdx=0; side="L"; beginRound(); });  // startet automatisch nach der Ansage
     }
-  },1000);
+  }, 2600);
+}
+
+// wartet, bis die Sprachausgabe fertig ist (mit Mindest- und Maximalwartezeit)
+function whenSpeechIdle(cb){
+  const start=Date.now(), minDelay=1200, maxWait=15000;
+  (function check(){
+    const speaking = ("speechSynthesis" in window) && speechSynthesis.speaking;
+    const el=Date.now()-start;
+    if((!speaking && el>=minDelay) || el>=maxWait){ cb(); return; }
+    autoTimer=setTimeout(check, 300);
+  })();
 }
 
 function beep(freq){
@@ -568,7 +689,7 @@ function beep(freq){
 }
 
 function finish(){
-  stopTimer();
+  clearAllTimers();
   if("speechSynthesis" in window) speechSynthesis.cancel();
   footer.innerHTML="";   // Navigations-Fußzeile ausblenden
   document.getElementById("dots").innerHTML =
