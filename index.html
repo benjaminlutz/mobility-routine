@@ -48,8 +48,17 @@
     gap:14px;
   }
 
+  header{display:flex;align-items:flex-start;gap:12px;}
+  header .htext{flex:1;}
   header h1{font-size:19px;margin:0;font-weight:650;letter-spacing:.2px;}
   header p{margin:2px 0 0;color:var(--muted);font-size:13px;}
+  .voicebtn{
+    flex:none;border:1px solid var(--line);background:var(--card2);color:var(--text);
+    width:42px;height:42px;border-radius:12px;font-size:20px;cursor:pointer;line-height:1;
+    display:flex;align-items:center;justify-content:center;transition:.15s;
+  }
+  .voicebtn:active{transform:scale(.94);}
+  .voicebtn.off{opacity:.5;}
 
   /* progress */
   .progress{display:flex;align-items:center;gap:10px;}
@@ -141,8 +150,11 @@
 <body>
 <div class="app">
   <header>
-    <h1>Tägliche Mobility-Routine</h1>
-    <p>5 Übungen · ca. 5–10 Minuten · nach dem Video von Medeasway</p>
+    <div class="htext">
+      <h1>Tägliche Mobility-Routine</h1>
+      <p>5 Übungen · ca. 5–10 Minuten · nach dem Video von Medeasway</p>
+    </div>
+    <button class="voicebtn" id="voiceBtn" title="Sprachausgabe an/aus" aria-label="Sprachausgabe an/aus">🔊</button>
   </header>
 
   <div class="progress">
@@ -334,6 +346,49 @@ let running = false;
 
 const screen = document.getElementById("screen");
 
+/* ---------- Sprachausgabe (Deutsch, Web Speech API) ---------- */
+let voiceOn = true;
+let deVoice = null;
+const spoken = new Set();   // Übungen, deren Anweisungen schon einmal vorgelesen wurden
+
+function pickVoice(){
+  if(!("speechSynthesis" in window)) return;
+  const vs = speechSynthesis.getVoices();
+  // bevorzugt eine deutsche Stimme
+  deVoice = vs.find(v=>/^de(-|_|$)/i.test(v.lang)) || null;
+}
+if("speechSynthesis" in window){
+  pickVoice();
+  speechSynthesis.onvoiceschanged = pickVoice;
+}
+
+function utter(text){
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = "de-DE";
+  if(deVoice) u.voice = deVoice;
+  u.rate = 1; u.pitch = 1;
+  speechSynthesis.speak(u);
+}
+
+// Kurze Ansage (z. B. beim Timer-Start/-Ende), bricht Laufendes ab.
+function say(text){
+  if(!voiceOn || !("speechSynthesis" in window)) return;
+  speechSynthesis.cancel();
+  utter(text);
+}
+
+// Sagt den Übungsnamen an; beim allerersten Aufruf zusätzlich die Anweisungen.
+function announce(){
+  if(!voiceOn || !("speechSynthesis" in window)) return;
+  const e = EX[idx];
+  speechSynthesis.cancel();                 // laufende Ansage abbrechen (schnelles Blättern)
+  utter(e.name);
+  if(!spoken.has(idx)){
+    spoken.add(idx);
+    utter("So funktioniert's: " + e.steps.join(" "));
+  }
+}
+
 function fmt(s){
   const m = Math.floor(s/60), r = s%60;
   return m + ":" + String(r).padStart(2,"0");
@@ -416,6 +471,8 @@ function render(){
   if(e.perSide){
     wireSideToggle();
   }
+
+  announce();   // Übungsname (+ beim ersten Mal die Anweisungen) vorlesen
 }
 
 function sideToggleHTML(){
@@ -458,23 +515,26 @@ function toggleTimer(){
   }
   if(remaining<=0){remaining=EX[idx].duration;updateTime();}
   running=true;btn.textContent="Pause";
+  beep(660);              // kurzer Start-Ton
+  say("Los, Start!");     // Sprachansage zum Start
   ticking=setInterval(()=>{
     remaining--;
     updateTime();
     if(remaining<=0){
       stopTimer();
       btn.textContent="Nochmal";
-      beep();
+      beep(880);                    // Signalton zum Ende
+      setTimeout(()=>say("Fertig, geschafft!"), 550);  // Ansage nach dem Ton
     }
   },1000);
 }
 
-function beep(){
+function beep(freq){
   try{
     const ctx=new (window.AudioContext||window.webkitAudioContext)();
     const o=ctx.createOscillator(), g=ctx.createGain();
     o.connect(g);g.connect(ctx.destination);
-    o.type="sine";o.frequency.value=880;
+    o.type="sine";o.frequency.value=freq||880;
     g.gain.setValueAtTime(0.001,ctx.currentTime);
     g.gain.exponentialRampToValueAtTime(0.3,ctx.currentTime+0.02);
     g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.5);
@@ -484,6 +544,7 @@ function beep(){
 
 function finish(){
   stopTimer();
+  if("speechSynthesis" in window) speechSynthesis.cancel();
   document.getElementById("dots").innerHTML =
     EX.map(()=>`<div class="dot done"></div>`).join("");
   document.getElementById("counter").textContent="Geschafft!";
@@ -498,6 +559,16 @@ function finish(){
     </div>`;
   document.getElementById("againBtn").onclick=()=>{idx=0;render();};
 }
+
+/* Laut-an/aus-Schalter */
+const voiceBtn = document.getElementById("voiceBtn");
+voiceBtn.onclick = ()=>{
+  voiceOn = !voiceOn;
+  voiceBtn.textContent = voiceOn ? "🔊" : "🔇";
+  voiceBtn.classList.toggle("off", !voiceOn);
+  if("speechSynthesis" in window) speechSynthesis.cancel();
+  if(voiceOn) announce();   // beim Einschalten aktuelle Übung ansagen
+};
 
 render();
 </script>
