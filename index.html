@@ -570,6 +570,24 @@ voiceBtn.onclick = ()=>{
   if(voiceOn) announce();   // beim Einschalten aktuelle Übung ansagen
 };
 
+/* ---------- Display wach halten (Screen Wake Lock) ---------- */
+let wakeLock = null;
+async function requestWake(){
+  try{
+    if(("wakeLock" in navigator) && (!wakeLock)){
+      wakeLock = await navigator.wakeLock.request("screen");
+      wakeLock.addEventListener("release", ()=>{ wakeLock = null; });
+    }
+  }catch(e){ /* z. B. wenn kein Nutzer-Gesture oder nicht unterstützt */ }
+}
+// Beim Zurückkehren zur App erneut anfordern (der Lock wird beim Verlassen automatisch freigegeben)
+document.addEventListener("visibilitychange", ()=>{
+  if(document.visibilityState === "visible") requestWake();
+});
+// iOS verlangt für die erste Anforderung meist eine Nutzer-Interaktion – daher auch bei jedem Tippen sicherstellen
+document.addEventListener("pointerdown", requestWake);
+requestWake();
+
 render();
 </script>
 </body>
