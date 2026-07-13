@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Mobility">
+<meta name="theme-color" content="#0f1720">
+<link rel="apple-touch-icon" href="data:image/png;base64,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">
+<link rel="icon" href="data:image/png;base64,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">
+<title>Tägliche Mobility-Routine</title>
+<style>
+  :root{
+    --bg:#0f1720;
+    --card:#182430;
+    --card2:#1f2f3d;
+    --accent:#4fd1c5;
+    --accent2:#38bdf8;
+    --text:#e8eef3;
+    --muted:#8fa3b3;
+    --line:#2b3d4d;
+    --good:#34d399;
+    --warn:#fbbf24;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:radial-gradient(1200px 600px at 50% -10%, #1b2a38 0%, var(--bg) 60%);
+    color:var(--text);
+    min-height:100vh;
+    min-height:100dvh;
+    display:flex;
+    justify-content:center;
+    padding:16px;
+    padding-top:calc(16px + env(safe-area-inset-top));
+    padding-bottom:calc(16px + env(safe-area-inset-bottom));
+    padding-left:calc(16px + env(safe-area-inset-left));
+    padding-right:calc(16px + env(safe-area-inset-right));
+  }
+  .app{
+    width:100%;
+    max-width:480px;
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+  }
+
+  header h1{font-size:19px;margin:0;font-weight:650;letter-spacing:.2px;}
+  header p{margin:2px 0 0;color:var(--muted);font-size:13px;}
+
+  /* progress */
+  .progress{display:flex;align-items:center;gap:10px;}
+  .dots{display:flex;gap:7px;flex:1;}
+  .dot{height:6px;flex:1;border-radius:6px;background:var(--line);transition:.3s;}
+  .dot.done{background:var(--accent);}
+  .dot.active{background:var(--accent2);box-shadow:0 0 0 2px rgba(56,189,248,.25);}
+  .counter{font-size:13px;color:var(--muted);white-space:nowrap;}
+
+  /* card */
+  .card{
+    background:linear-gradient(180deg,var(--card2),var(--card));
+    border:1px solid var(--line);
+    border-radius:18px;
+    padding:18px;
+    box-shadow:0 10px 30px rgba(0,0,0,.35);
+  }
+  .exname{font-size:22px;font-weight:700;margin:0 0 4px;}
+  .badge{
+    display:inline-block;font-size:12px;color:#062a26;background:var(--accent);
+    padding:3px 10px;border-radius:20px;font-weight:600;margin-bottom:2px;
+  }
+
+  /* animation stage */
+  .stage{
+    background:radial-gradient(400px 200px at 50% 30%, #223341, #16222d);
+    border:1px solid var(--line);
+    border-radius:14px;
+    margin:14px 0;
+    display:flex;justify-content:center;align-items:center;
+    aspect-ratio: 3 / 2;
+    overflow:hidden;
+  }
+  .stage svg{width:100%;height:100%;display:block;}
+
+  /* instruction list */
+  ul.steps{margin:6px 0 0;padding-left:18px;color:var(--text);font-size:14px;line-height:1.55;}
+  ul.steps li{margin-bottom:4px;}
+
+  /* metric area (timer / reps) */
+  .metric{
+    margin-top:16px;background:var(--card);border:1px solid var(--line);
+    border-radius:14px;padding:16px;text-align:center;
+  }
+  .metric .label{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;}
+  .time{font-size:56px;font-weight:750;font-variant-numeric:tabular-nums;line-height:1.05;margin:4px 0;}
+  .time.pulse{color:var(--warn);}
+  .reps-num{font-size:56px;font-weight:750;line-height:1.05;margin:2px 0;color:var(--accent);}
+  .sub{font-size:13px;color:var(--muted);margin-top:2px;}
+
+  .side-toggle{display:inline-flex;gap:6px;margin:8px 0 4px;background:var(--card2);border:1px solid var(--line);border-radius:20px;padding:3px;}
+  .side-toggle button{
+    border:none;background:transparent;color:var(--muted);font-size:13px;font-weight:600;
+    padding:5px 14px;border-radius:16px;cursor:pointer;
+  }
+  .side-toggle button.on{background:var(--accent2);color:#04212f;}
+
+  .controls{display:flex;gap:10px;justify-content:center;margin-top:12px;}
+  .btn{
+    border:none;border-radius:12px;padding:12px 18px;font-size:15px;font-weight:650;cursor:pointer;
+    transition:.15s;flex:1;max-width:150px;
+  }
+  .btn:active{transform:scale(.97);}
+  .btn-primary{background:var(--accent);color:#04231f;}
+  .btn-ghost{background:var(--card2);color:var(--text);border:1px solid var(--line);}
+  .btn-done{background:var(--good);color:#04231f;}
+
+  /* footer nav */
+  .nav{display:flex;gap:12px;}
+  .nav .btn{max-width:none;}
+  .btn[disabled]{opacity:.35;cursor:not-allowed;}
+
+  /* finish screen */
+  .finish{text-align:center;padding:30px 18px;}
+  .finish .big{font-size:52px;}
+  .finish h2{margin:10px 0 6px;}
+  .finish p{color:var(--muted);font-size:14px;}
+
+  .hint{font-size:12px;color:var(--muted);text-align:center;margin-top:2px;}
+
+  /* --- shared figure styling --- */
+  .fig{fill:none;stroke:var(--accent);stroke-width:6;stroke-linecap:round;stroke-linejoin:round;}
+  .fig.j{fill:var(--accent);stroke:none;}
+  .floor{stroke:var(--line);stroke-width:4;stroke-linecap:round;}
+  .prop{stroke:var(--accent2);stroke-width:6;stroke-linecap:round;}
+  .propfill{fill:var(--accent2);opacity:.9;}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <h1>Tägliche Mobility-Routine</h1>
+    <p>5 Übungen · ca. 5–10 Minuten · nach dem Video von Medeasway</p>
+  </header>
+
+  <div class="progress">
+    <div class="dots" id="dots"></div>
+    <div class="counter" id="counter">Übung 1 von 5</div>
+  </div>
+
+  <div id="screen"></div>
+</div>
+
+<script>
+/* ---------- Übungsdaten aus dem Video-Transkript ---------- */
+const EX = [
+  {
+    name:"Nerve Glides",
+    area:"Oberschenkelrückseite / Ischias",
+    steps:[
+      "Auf den Rücken legen, Hände hinter einem Oberschenkel einhaken.",
+      "Bein langsam ausstrecken bis zu einer leichten Dehnung.",
+      "Kurz halten, dann wieder zurück – sanft auf und ab.",
+      "Es geht um den Ischias-Nerv, nicht um maximales Dehnen."
+    ],
+    type:"timer",
+    duration:90,        // 1–2 Min pro Bein
+    perSide:true,
+    setsNote:"1–2 Min pro Bein"
+  },
+  {
+    name:"Tiefe Kniebeuge",
+    area:"Hüfte / Sprunggelenke",
+    steps:[
+      "Füße etwas breiter als hüftbreit aufstellen.",
+      "So tief wie möglich runtersinken (ggf. festhalten/abstützen).",
+      "Leicht von Seite zu Seite wippen, Knie nach außen drücken.",
+      "In der Position ankommen und den Rücken strecken lassen."
+    ],
+    type:"timer",
+    duration:30,        // ~30 Sek, 2–3x
+    perSide:false,
+    sets:3,
+    setsNote:"30 Sek · 2–3 Durchgänge"
+  },
+  {
+    name:"Couch Stretch",
+    area:"Hüftbeuger / unterer Rücken",
+    steps:[
+      "Ausfallschritt, hinteren Unterschenkel an Couch oder Wand legen.",
+      "Oberkörper langsam aufrichten.",
+      "Für mehr Intensität Becken kippen / Hüfte nach hinten schieben.",
+      "Entspannt in die Position atmen und wirken lassen."
+    ],
+    type:"timer",
+    duration:90,        // 1–2 Min pro Seite
+    perSide:true,
+    setsNote:"1–2 Min pro Seite"
+  },
+  {
+    name:"Schulterkreisen mit Stab",
+    area:"Nacken / Schultern / Brust",
+    steps:[
+      "Stab, Band oder Handtuch breiter als schulterbreit greifen.",
+      "Arme langsam über den Kopf und so weit wie möglich nach hinten.",
+      "Kontrolliert wieder zurückführen – keine Schnelligkeit.",
+      "Griff enger machen, sobald die Bewegung leichter wird."
+    ],
+    type:"timer",
+    duration:90,        // 1–2 Min
+    perSide:false,
+    setsNote:"1–2 Min"
+  },
+  {
+    name:"Kosaken-Squat",
+    area:"Innere Oberschenkel / Adduktoren",
+    steps:[
+      "Breit hinstellen, Hände auf die Oberschenkel.",
+      "Gewicht von Seite zu Seite verlagern, bis du innen eine Dehnung spürst.",
+      "Mit jeder Wiederholung ein kleines bisschen tiefer gehen.",
+      "So aufrecht wie möglich bleiben, dort starten wo es leicht dehnt."
+    ],
+    type:"reps",
+    reps:5,             // 5 bewusste Bewegungen pro Seite
+    perSide:true,
+    sets:3,
+    setsNote:"5 Wiederholungen pro Seite · 2–3 Durchgänge"
+  }
+];
+
+/* ---------- Animationen (schematische Strichfiguren) ---------- */
+function anim(i){
+  switch(i){
+    case 0: return `
+      <svg viewBox="0 0 300 200">
+        <line class="floor" x1="20" y1="150" x2="280" y2="150"/>
+        <!-- liegende Person -->
+        <circle class="fig j" cx="60" cy="140" r="12"/>
+        <line class="fig" x1="72" y1="140" x2="170" y2="140"/>
+        <!-- oberes Bein fix -->
+        <line class="fig" x1="170" y1="140" x2="200" y2="95"/>
+        <!-- animierter Unterschenkel (streckt sich) -->
+        <g style="transform-origin:200px 95px;animation:nerve 2.4s ease-in-out infinite;">
+          <line class="fig" x1="200" y1="95" x2="235" y2="130"/>
+          <line class="fig" x1="235" y1="130" x2="248" y2="126" stroke-width="6"/>
+        </g>
+        <!-- Arme greifen Oberschenkel -->
+        <line class="fig" x1="120" y1="140" x2="185" y2="118" stroke-width="4" opacity=".8"/>
+      </svg>
+      <style>@keyframes nerve{0%,100%{transform:rotate(0deg)}50%{transform:rotate(-55deg)}}</style>`;
+    case 1: return `
+      <svg viewBox="0 0 300 200">
+        <line class="floor" x1="20" y1="175" x2="280" y2="175"/>
+        <g style="transform-origin:150px 130px;animation:sway 3s ease-in-out infinite;">
+          <circle class="fig j" cx="150" cy="70" r="12"/>
+          <!-- Rumpf -->
+          <line class="fig" x1="150" y1="82" x2="150" y2="120"/>
+          <!-- Oberschenkel nach außen -->
+          <line class="fig" x1="150" y1="120" x2="115" y2="140"/>
+          <line class="fig" x1="150" y1="120" x2="185" y2="140"/>
+          <!-- Unterschenkel zum Boden -->
+          <line class="fig" x1="115" y1="140" x2="112" y2="174"/>
+          <line class="fig" x1="185" y1="140" x2="188" y2="174"/>
+          <!-- Arme nach vorne -->
+          <line class="fig" x1="150" y1="92" x2="120" y2="115" stroke-width="4"/>
+          <line class="fig" x1="150" y1="92" x2="180" y2="115" stroke-width="4"/>
+        </g>
+      </svg>
+      <style>@keyframes sway{0%,100%{transform:translateX(-14px)}50%{transform:translateX(14px)}}</style>`;
+    case 2: return `
+      <svg viewBox="0 0 300 200">
+        <line class="floor" x1="20" y1="175" x2="280" y2="175"/>
+        <!-- Wand/Couch -->
+        <rect x="235" y="90" width="45" height="85" rx="6" fill="#22333f" stroke="var(--line)" stroke-width="3"/>
+        <g style="transform-origin:150px 120px;animation:couch 3.4s ease-in-out infinite;">
+          <circle class="fig j" cx="150" cy="60" r="12"/>
+          <line class="fig" x1="150" y1="72" x2="150" y2="120"/>
+          <!-- vorderes Bein -->
+          <line class="fig" x1="150" y1="120" x2="120" y2="150"/>
+          <line class="fig" x1="120" y1="150" x2="120" y2="174"/>
+          <!-- Arme -->
+          <line class="fig" x1="150" y1="82" x2="128" y2="105" stroke-width="4"/>
+        </g>
+        <!-- hinteres Bein, Unterschenkel an Wand -->
+        <line class="fig" x1="150" y1="120" x2="205" y2="150"/>
+        <line class="fig" x1="205" y1="150" x2="238" y2="112"/>
+      </svg>
+      <style>@keyframes couch{0%,100%{transform:rotate(6deg)}50%{transform:rotate(-4deg)}}</style>`;
+    case 3: return `
+      <svg viewBox="0 0 300 200">
+        <line class="floor" x1="20" y1="180" x2="280" y2="180"/>
+        <circle class="fig j" cx="150" cy="55" r="12"/>
+        <line class="fig" x1="150" y1="67" x2="150" y2="120"/>
+        <line class="fig" x1="150" y1="120" x2="132" y2="180"/>
+        <line class="fig" x1="150" y1="120" x2="168" y2="180"/>
+        <!-- Schultern -->
+        <line class="fig" x1="128" y1="82" x2="172" y2="82"/>
+        <!-- animierte Arme + Stab -->
+        <g style="transform-origin:150px 82px;animation:shoulder 3.2s ease-in-out infinite;">
+          <line class="fig" x1="128" y1="82" x2="95" y2="55" stroke-width="5"/>
+          <line class="fig" x1="172" y1="82" x2="205" y2="55" stroke-width="5"/>
+          <line class="prop" x1="88" y1="50" x2="212" y2="50"/>
+          <circle class="propfill" cx="88" cy="50" r="5"/>
+          <circle class="propfill" cx="212" cy="50" r="5"/>
+        </g>
+      </svg>
+      <style>@keyframes shoulder{0%,100%{transform:rotate(0deg)}50%{transform:rotate(-32deg)}}</style>`;
+    case 4: return `
+      <svg viewBox="0 0 300 200">
+        <line class="floor" x1="20" y1="175" x2="280" y2="175"/>
+        <g style="transform-origin:150px 120px;animation:cossack 3.4s ease-in-out infinite;">
+          <circle class="fig j" cx="150" cy="62" r="12"/>
+          <line class="fig" x1="150" y1="74" x2="150" y2="120"/>
+          <line class="fig" x1="150" y1="90" x2="118" y2="108" stroke-width="4"/>
+          <line class="fig" x1="150" y1="90" x2="182" y2="108" stroke-width="4"/>
+        </g>
+        <!-- gebeugtes Bein links + gestrecktes Bein rechts -->
+        <line class="fig" x1="150" y1="120" x2="105" y2="150"/>
+        <line class="fig" x1="105" y1="150" x2="108" y2="174"/>
+        <line class="fig" x1="150" y1="120" x2="235" y2="172"/>
+      </svg>
+      <style>@keyframes cossack{0%,100%{transform:translateX(-6px) rotate(-3deg)}50%{transform:translateX(0px) rotate(0deg)}}</style>`;
+  }
+}
+
+/* ---------- State ---------- */
+let idx = 0;
+let side = "L";              // aktuelle Seite bei perSide-Übungen
+let remaining = 0;
+let ticking = null;
+let running = false;
+
+const screen = document.getElementById("screen");
+
+function fmt(s){
+  const m = Math.floor(s/60), r = s%60;
+  return m + ":" + String(r).padStart(2,"0");
+}
+
+function renderDots(){
+  const d = document.getElementById("dots");
+  d.innerHTML = EX.map((_,k)=>{
+    let c="dot";
+    if(k<idx) c+=" done";
+    if(k===idx) c+=" active";
+    return `<div class="${c}"></div>`;
+  }).join("");
+  document.getElementById("counter").textContent = `Übung ${idx+1} von ${EX.length}`;
+}
+
+function stopTimer(){
+  if(ticking){clearInterval(ticking);ticking=null;}
+  running=false;
+}
+
+function render(){
+  stopTimer();
+  renderDots();
+  const e = EX[idx];
+  side = "L";
+
+  let metricHTML = "";
+  if(e.type==="timer"){
+    remaining = e.duration;
+    metricHTML = `
+      ${e.perSide ? sideToggleHTML() : ""}
+      <div class="metric">
+        <div class="label">Timer${e.perSide?` · Seite <span id="sideLbl">links</span>`:""}</div>
+        <div class="time" id="time">${fmt(remaining)}</div>
+        <div class="sub">${e.setsNote}</div>
+        <div class="controls">
+          <button class="btn btn-primary" id="startBtn">Start</button>
+          <button class="btn btn-ghost" id="resetBtn">Zurücksetzen</button>
+        </div>
+      </div>`;
+  } else {
+    metricHTML = `
+      ${e.perSide ? sideToggleHTML() : ""}
+      <div class="metric">
+        <div class="label">Wiederholungen${e.perSide?` · Seite <span id="sideLbl">links</span>`:""}</div>
+        <div class="reps-num">${e.reps}×</div>
+        <div class="sub">${e.setsNote}</div>
+        <div class="hint">Zähle die Wiederholungen bewusst und kontrolliert mit.</div>
+      </div>`;
+  }
+
+  screen.innerHTML = `
+    <div class="card">
+      <span class="badge">${e.area}</span>
+      <div class="exname">${e.name}</div>
+      <div class="stage">${anim(idx)}</div>
+      <ul class="steps">${e.steps.map(s=>`<li>${s}</li>`).join("")}</ul>
+      ${metricHTML}
+    </div>
+    <div class="nav">
+      <button class="btn btn-ghost" id="prevBtn" ${idx===0?"disabled":""}>← Zurück</button>
+      <button class="btn btn-primary" id="nextBtn">${idx===EX.length-1?"Fertig ✓":"Weiter →"}</button>
+    </div>
+  `;
+
+  // wire nav
+  document.getElementById("prevBtn").onclick=()=>{if(idx>0){idx--;render();}};
+  document.getElementById("nextBtn").onclick=()=>{
+    if(idx===EX.length-1){finish();} else {idx++;render();}
+  };
+
+  if(e.type==="timer"){
+    document.getElementById("startBtn").onclick=toggleTimer;
+    document.getElementById("resetBtn").onclick=()=>{
+      stopTimer();remaining=e.duration;updateTime();
+      document.getElementById("startBtn").textContent="Start";
+    };
+  }
+  if(e.perSide){
+    wireSideToggle();
+  }
+}
+
+function sideToggleHTML(){
+  return `<div class="side-toggle" id="sideToggle">
+      <button data-s="L" class="on">Links</button>
+      <button data-s="R">Rechts</button>
+    </div>`;
+}
+function wireSideToggle(){
+  const t=document.getElementById("sideToggle");
+  if(!t) return;
+  t.querySelectorAll("button").forEach(b=>{
+    b.onclick=()=>{
+      side=b.dataset.s;
+      t.querySelectorAll("button").forEach(x=>x.classList.remove("on"));
+      b.classList.add("on");
+      const lbl=document.getElementById("sideLbl");
+      if(lbl) lbl.textContent = side==="L"?"links":"rechts";
+      // Timer bei Seitenwechsel zurücksetzen
+      if(EX[idx].type==="timer"){
+        stopTimer();remaining=EX[idx].duration;updateTime();
+        const sb=document.getElementById("startBtn"); if(sb) sb.textContent="Start";
+      }
+    };
+  });
+}
+
+function updateTime(){
+  const t=document.getElementById("time");
+  if(!t) return;
+  t.textContent=fmt(remaining);
+  t.classList.toggle("pulse", remaining<=10 && remaining>0);
+}
+
+function toggleTimer(){
+  const btn=document.getElementById("startBtn");
+  if(running){
+    stopTimer();btn.textContent="Weiter";
+    return;
+  }
+  if(remaining<=0){remaining=EX[idx].duration;updateTime();}
+  running=true;btn.textContent="Pause";
+  ticking=setInterval(()=>{
+    remaining--;
+    updateTime();
+    if(remaining<=0){
+      stopTimer();
+      btn.textContent="Nochmal";
+      beep();
+    }
+  },1000);
+}
+
+function beep(){
+  try{
+    const ctx=new (window.AudioContext||window.webkitAudioContext)();
+    const o=ctx.createOscillator(), g=ctx.createGain();
+    o.connect(g);g.connect(ctx.destination);
+    o.type="sine";o.frequency.value=880;
+    g.gain.setValueAtTime(0.001,ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.3,ctx.currentTime+0.02);
+    g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.5);
+    o.start();o.stop(ctx.currentTime+0.5);
+  }catch(e){}
+}
+
+function finish(){
+  stopTimer();
+  document.getElementById("dots").innerHTML =
+    EX.map(()=>`<div class="dot done"></div>`).join("");
+  document.getElementById("counter").textContent="Geschafft!";
+  screen.innerHTML=`
+    <div class="card finish">
+      <div class="big">🎉</div>
+      <h2>Routine abgeschlossen!</h2>
+      <p>Alle 5 Übungen erledigt. Am besten täglich wiederholen –<br>dein Körper dankt es dir.</p>
+      <div class="controls" style="margin-top:18px;">
+        <button class="btn btn-done" id="againBtn">Nochmal von vorne</button>
+      </div>
+    </div>`;
+  document.getElementById("againBtn").onclick=()=>{idx=0;render();};
+}
+
+render();
+</script>
+</body>
+</html>
