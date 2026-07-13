@@ -108,7 +108,7 @@
   .stage svg{width:100%;height:100%;display:block;}
 
   /* instruction list */
-  ul.steps{margin:6px 0 0;padding-left:18px;color:var(--text);font-size:14px;line-height:1.55;}
+  ul.steps{margin:16px 0 0;padding-left:18px;color:var(--text);font-size:14px;line-height:1.55;}
   ul.steps li{margin-bottom:4px;}
 
   /* metric area (timer / reps) */
@@ -171,7 +171,7 @@
   <header>
     <div class="htext">
       <h1>Tägliche Mobility-Routine</h1>
-      <p>5 Übungen · ca. 5–10 Minuten · nach dem Video von Medeasway</p>
+      <p>5 Übungen · ca. 5–10 Minuten</p>
     </div>
     <button class="voicebtn" id="voiceBtn" title="Sprachausgabe an/aus" aria-label="Sprachausgabe an/aus">🔊</button>
   </header>
@@ -467,8 +467,8 @@ function render(){
       <span class="badge">${e.area}</span>
       <div class="exname">${e.name}</div>
       <div class="stage">${anim(idx)}</div>
-      <ul class="steps">${e.steps.map(s=>`<li>${s}</li>`).join("")}</ul>
       ${metricHTML}
+      <ul class="steps">${e.steps.map(s=>`<li>${s}</li>`).join("")}</ul>
     </div>
   `;
   screen.scrollTop = 0;   // beim Übungswechsel nach oben scrollen
@@ -602,19 +602,26 @@ voiceBtn.onclick = ()=>{
 /* ---------- Display wach halten (Screen Wake Lock) ---------- */
 let wakeLock = null;
 async function requestWake(){
+  if(!("wakeLock" in navigator)) return;
+  if(wakeLock) return;                              // schon aktiv
+  if(document.visibilityState !== "visible") return; // nur wenn App sichtbar
   try{
-    if(("wakeLock" in navigator) && (!wakeLock)){
-      wakeLock = await navigator.wakeLock.request("screen");
-      wakeLock.addEventListener("release", ()=>{ wakeLock = null; });
-    }
-  }catch(e){ /* z. B. wenn kein Nutzer-Gesture oder nicht unterstützt */ }
+    wakeLock = await navigator.wakeLock.request("screen");
+    wakeLock.addEventListener("release", ()=>{
+      wakeLock = null;
+      // iOS gibt die Sperre von selbst frei -> sofort erneut anfordern, solange sichtbar
+      if(document.visibilityState === "visible") requestWake();
+    });
+  }catch(e){ wakeLock = null; /* z. B. kein Nutzer-Gesture oder nicht unterstützt */ }
 }
-// Beim Zurückkehren zur App erneut anfordern (der Lock wird beim Verlassen automatisch freigegeben)
+// Beim Zurückkehren zur App erneut anfordern
 document.addEventListener("visibilitychange", ()=>{
   if(document.visibilityState === "visible") requestWake();
 });
-// iOS verlangt für die erste Anforderung meist eine Nutzer-Interaktion – daher auch bei jedem Tippen sicherstellen
+// iOS verlangt für die erste Anforderung meist eine Nutzer-Interaktion – daher bei jedem Tippen sicherstellen
 document.addEventListener("pointerdown", requestWake);
+// Sicherheitsnetz: regelmäßig prüfen und ggf. neu anfordern
+setInterval(requestWake, 15000);
 requestWake();
 
 render();
